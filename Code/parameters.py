@@ -75,7 +75,7 @@ if USE_SOV:
     Vs = 6.2                         # Average speed (in m/s, approx 12 knots)
     FCV = 35000                      # Fixed vessel cost per day (in EUR)
     COL = 4500                       # Cost of service team per day (in EUR)
-    COF = 200                        # Cost of vessel fuel per hour (in EUR/hour)
+    COF = 112                        # Cost of vessel fuel per hour (in EUR/hour)
 else:
     # CTV Profile (Crew Transfer Vessel from Frederiksen's paper)
     CURRENT_VESSEL_LIMIT = 1.3       # Wave limit (in meters)

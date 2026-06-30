@@ -1,3 +1,7 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
 '''List of WTs with their coordinates (from Cost-Effectiveness Paper) 
 and their probability of downtime Pr t,i(D) (from Integrated preventive Paper)'''
 
@@ -145,3 +149,39 @@ list_WT = [
      'repaired': False
      },
 ]
+
+# 1. Data extraction and formatting
+wt_ids = [wt['ID'] for wt in list_WT]
+pr_di_data = [wt['Pr_Di'] for wt in list_WT]
+
+# Create a Pandas DataFrame for better structure
+# Rows represent Wind Turbines, columns represent the 7-day horizon
+df_pr = pd.DataFrame(pr_di_data, index=wt_ids, columns=[f'Day {i+1}' for i in range(7)])
+
+# 2. Figure configuration (Academic style)
+plt.figure(figsize=(12, 9), dpi=300)
+sns.set_theme(style="white")
+
+# 3. Create Heatmap
+# 'annot=True' displays the precise values
+# 'cmap' uses a professional color scale (Yellow-Orange-Red)
+ax = sns.heatmap(df_pr, annot=True, fmt=".2f", cmap="YlOrRd",
+                 cbar_kws={'label': 'Probability of Failure (Pr_Di)'},
+                 linewidths=.5, vmin=0, vmax=0.6)
+
+# 4. Axes and title adjustment
+plt.title("Daily Predictive Risk Profile (Pr_Di) Across the Wind Farm", fontsize=16, pad=20, weight='bold')
+plt.xlabel("Maintenance Campaign Day", fontsize=14, labelpad=10)
+plt.ylabel("Wind Turbine ID (WT)", fontsize=14, labelpad=10)
+
+# Adjust tick labels
+plt.yticks(rotation=0, fontsize=11)
+plt.xticks(fontsize=11)
+
+# 5. Save in high-definition (300 dpi) for the MSc dissertation
+plt.tight_layout()
+plt.savefig("Predictive_Risk_Heatmap.png", dpi=300, bbox_inches='tight')
+print("The 'Predictive_Risk_Heatmap.png' image has been successfully generated for your dissertation.")
+
+# Show plot
+plt.show()
