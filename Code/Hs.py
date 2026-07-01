@@ -12,7 +12,7 @@ def get_hs_time_series(folder_path, file_names, target_lat, target_lon):
     file_paths = [os.path.join(folder_path, f) for f in file_names]
     
     # 2. Open the datasets
-    xrds = xr.open_mfdataset(file_paths, combine='by_coords', parallel=False, chunks={}, engine='netcdf4')
+    xrds = xr.open_mfdataset(file_paths, combine='by_coords', parallel=False, chunks={})
     
     # 3. Extract the nearest geographical point
     point = xrds.sel(latitude=target_lat, longitude=target_lon, method="nearest")
@@ -52,8 +52,8 @@ if __name__ == "__main__":
     #center_lon = -3.9335
     
     # Centre du parc (Aberdeen)
-    center_lat = 57.211889
-    center_lon = -1.866647
+    center_lat = 57.2139
+    center_lon = -1.9223
     
     # Conversion de km en degrés (Approximation locale pour ~59° Nord)
     # 1° Latitude  = ~111 km.  Donc 15 km total (+/- 7.5 km) = +/- 0.067°
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     plt.title("Spatial Variation of Significant Wave Height (Hs) across Wind Farm", fontweight='bold')
     plt.xlabel("Time Steps (Data points from NetCDF)", fontweight='bold')
     plt.ylabel("Significant Wave Height (m)", fontweight='bold')
-    plt.axhline(y=1.5, color='r', linestyle='--', label="CTV Limit (1.5m)")
+    plt.axhline(y=1.3, color='r', linestyle='--', label="CTV Limit (1.3m)")
     plt.legend(loc='upper right')
     plt.grid(True, linestyle=':', alpha=0.7)
     plt.tight_layout()
