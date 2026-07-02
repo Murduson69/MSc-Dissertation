@@ -7,28 +7,37 @@ Centralizes all physical, financial, and logistical parameters for the simulatio
 from WT_data import list_WT
 
 # =============================================================================
-# 1. METOCEAN & LOCATION DATA (Orkney / North Sea specific)
+# 1. METOCEAN & LOCATION DATA (Copernicus API Integration)
 # =============================================================================
 PARK_LAT = 57.2139
 PARK_LON = -1.9223
 
-WAVE_DATA_FOLDER = r'/Users/baptiste/Documents/Heriot Watt/R-SET/Dissertation/Code'
-WAVE_DATA_FILES = [
-    'mfwamglocep_2025060100_R20250602_00H.nc',
-    'mfwamglocep_2025060112_R20250602_12H.nc',
-    'mfwamglocep_2025060200_R20250603_00H.nc',
-    'mfwamglocep_2025060212_R20250603_12H.nc',
-    'mfwamglocep_2025060300_R20250604_00H.nc',
-    'mfwamglocep_2025060312_R20250604_12H.nc',
-    'mfwamglocep_2025060400_R20250605_00H.nc',
-    'mfwamglocep_2025060412_R20250605_12H.nc',
-    'mfwamglocep_2025060500_R20250606_00H.nc',
-    'mfwamglocep_2025060512_R20250606_12H.nc',
-    'mfwamglocep_2025060600_R20250607_00H.nc',
-    'mfwamglocep_2025060612_R20250607_12H.nc',
-    'mfwamglocep_2025060700_R20250608_00H.nc',
-    'mfwamglocep_2025060712_R20250608_12H.nc'
-]
+COPERNICUS_DATASET_ID = "cmems_mod_glo_wav_anfc_0.083deg_PT3H-i"
+
+# Définition des dates exactes pour tes 3 scénarios (Mets à jour le Base-Case)
+WEATHER_SCENARIOS = {
+    "Best-Case": {
+        "start": "2024-09-15T18:00:00",
+        "end":   "2024-09-22T18:00:00"
+    },
+    "Base-Case": {
+        "start": "2024-02-16T03:00:00",  
+        "end":   "2024-02-23T03:00:00"   
+    },
+    "Worst-Case": {
+        "start": "2024-01-01T00:00:00",
+        "end":   "2024-01-08T00:00:00"
+    }
+}
+
+# ---> CHANGE CE PARAMÈTRE POUR BASCULER D'UNE SEMAINE À L'AUTRE <---
+ACTIVE_WEATHER_SCENARIO = "Base-Case"
+
+# Extraction automatique des variables pour les scripts de simulation
+START_DATE = WEATHER_SCENARIOS[ACTIVE_WEATHER_SCENARIO]["start"]
+END_DATE = WEATHER_SCENARIOS[ACTIVE_WEATHER_SCENARIO]["end"]
+OUTPUT_NC_FILE = f"Hs_Aberdeen_{ACTIVE_WEATHER_SCENARIO}.nc"
+
 
 # =============================================================================
 # 2. WIND FARM & FINANCIAL PARAMETERS
