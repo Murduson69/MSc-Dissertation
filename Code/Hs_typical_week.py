@@ -12,13 +12,13 @@ center_lat = 57.2139
 center_lon = -1.9223
 
 # Période souhaitée (Année complète)
-start_date = "2025-01-01T00:00:00"
-end_date = "2025-12-31T23:59:59"
+start_date = "2024-01-01T00:00:00"
+end_date = "2024-12-31T23:59:59"
 
 # ID du dataset Copernicus (Global Ocean Wave Analysis and Forecast)
 # Vérifie sur le catalogue si tu utilises un autre produit spécifique
 dataset_id = "cmems_mod_glo_wav_anfc_0.083deg_PT3H-i" 
-output_filename = "Hs_1Year_Aberdeen.nc"
+output_filename = "Hs_1Year_Aberdeen_2024.nc"
 
 # =============================================================================
 # 2. TÉLÉCHARGEMENT VIA L'API SUBSET
@@ -70,21 +70,28 @@ df = pd.DataFrame({'Hs': hs_values}, index=time_values)
 
 def get_representative_weeks(data, window=56): 
     # Calcul de la moyenne glissante sur 7 jours
-    rolling_mean = data['Hs'].rolling(window=window).mean()
+    rolling_mean = data['Hs'].rolling(window=window, center=True).mean()
     
-    # Trouver l'index (la date) de la semaine la plus calme (été) et la plus agitée (hiver)
-    summer_week_start = rolling_mean.idxmin()
-    winter_week_start = rolling_mean.idxmax()
+    # idxmin/idxmax trouvent le MILIEU de la semaine typique grâce au center=True
+    summer_center = rolling_mean.idxmin()
+    winter_center = rolling_mean.idxmax()
     
-    return summer_week_start, winter_week_start
+    return summer_center, winter_center
 
-# Utilisation avec le df qu'on vient de créer
-summer_start, winter_start = get_representative_weeks(df)
-summer_end = summer_start + pd.Timedelta(days=7)
-winter_end = winter_start + pd.Timedelta(days=7)
+# Utilisation
+summer_center, winter_center = get_representative_weeks(df)
 
-print(f"Semaine typique Été : du {summer_start} au {summer_end}")
-print(f"Semaine typique Hiver : du {winter_start} au {winter_end}")
+# On recule de 3.5 jours et on avance de 3.5 jours pour encadrer la semaine
+half_week = pd.Timedelta(days=3.5)
+
+summer_start = summer_center - half_week
+summer_end = summer_center + half_week
+
+winter_start = winter_center - half_week
+winter_end = winter_center + half_week
+
+print(f"Best-Case Scenario: from {summer_start} to {summer_end}")
+print(f"Worst-Case Scenario: from {winter_start} to {winter_end}")
 
 # =============================================================================
 # 5. CRÉATION DU GRAPHIQUE
@@ -98,8 +105,8 @@ plt.plot(time_values, hs_values, color='lightgray', label='Raw Hs (3-hour steps)
 plt.plot(time_values, hs_rolling, color='blue', label='7-Day Rolling Average', linewidth=2)
 
 #Ajout des zones ombrées
-plt.axvspan(summer_start, summer_end, color='green', alpha=0.3, label='Semaine Typique Été')
-plt.axvspan(winter_start, winter_end, color='red', alpha=0.3, label='Semaine Typique Hiver')
+plt.axvspan(summer_start, summer_end, color='green', alpha=0.3, label='Best-Case Scenario')
+plt.axvspan(winter_start, winter_end, color='red', alpha=0.3, label='Worst-Case Scenario')
 
 # Lignes de contraintes opérationnelles
 plt.axhline(y=1.3, color='green', linestyle='--', linewidth=1.5, label='CTV Limit (1.3m)')

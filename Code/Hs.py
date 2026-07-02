@@ -1,106 +1,117 @@
+import copernicusmarine
 import xarray as xr
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-def get_hs_time_series(folder_path, file_names, target_lat, target_lon):
-    """
-    Extracts the significant wave height (Hs) time series 
-    for specific coordinates from NetCDF files.
-    """
-    # 1. Construct the full file paths
-    file_paths = [os.path.join(folder_path, f) for f in file_names]
-    
-    # 2. Open the datasets
-    xrds = xr.open_mfdataset(file_paths, combine='by_coords', parallel=False, chunks={})
-    
-    # 3. Extract the nearest geographical point
-    point = xrds.sel(latitude=target_lat, longitude=target_lon, method="nearest")
-    
-    # 4. Retrieve the Hs variable (VHM0)
-    Hs = point['VHM0']
-    
-    # 5. Convert to a simple Python list
-    hs_list = Hs.values.tolist()
-    
-    return hs_list
+# =============================================================================
+# 1. PARAMÈTRES DES SEMAINES TYPIQUES (À REMPLIR AVEC TES RÉSULTATS)
+# =============================================================================
+# Remplace par les dates exactes issues de ton script précédent
+best_case_start = "2024-09-15T18:00:00"
+best_case_end   = "2024-10-22T18:00:00"
+
+worst_case_start = "2024-01-01T00:00:00"
+worst_case_end   = "2024-01-08T00:00:00"
+
+# Centre du parc d'Aberdeen
+center_lat = 57.2139
+center_lon = -1.9223
+
+# Deltas spatiaux (20x15 km)
+delta_lat = 0.067
+delta_lon = 0.175
+
+# Définition des 5 points critiques du parc
+test_points = {
+    "Center":     (center_lat, center_lon),
+    "North-West": (center_lat + delta_lat, center_lon - delta_lon),
+    "North-East": (center_lat + delta_lat, center_lon + delta_lon),
+    "South-West": (center_lat - delta_lat, center_lon - delta_lon),
+    "South-East": (center_lat - delta_lat, center_lon + delta_lon)
+}
+
+dataset_id = "cmems_mod_glo_wav_anfc_0.083deg_PT3H-i"
 
 # =============================================================================
-# SENSITIVITY TEST: SPATIAL VARIATION ACROSS THE WIND FARM
+# 2. FONCTION DE TÉLÉCHARGEMENT ET D'EXTRACTION SPATIALE
 # =============================================================================
-if __name__ == "__main__":
-    folder = r'/Users/baptiste/Documents/Heriot Watt/R-SET/Dissertation/Code'
-    files = [
-        'mfwamglocep_2025060100_R20250602_00H.nc',
-        'mfwamglocep_2025060112_R20250602_12H.nc',
-        'mfwamglocep_2025060200_R20250603_00H.nc',
-        'mfwamglocep_2025060212_R20250603_12H.nc',
-        'mfwamglocep_2025060300_R20250604_00H.nc',
-        'mfwamglocep_2025060312_R20250604_12H.nc',
-        'mfwamglocep_2025060400_R20250605_00H.nc',
-        'mfwamglocep_2025060412_R20250605_12H.nc',
-        'mfwamglocep_2025060500_R20250606_00H.nc',
-        'mfwamglocep_2025060512_R20250606_12H.nc',
-        'mfwamglocep_2025060600_R20250607_00H.nc',
-        'mfwamglocep_2025060612_R20250607_12H.nc',
-        'mfwamglocep_2025060700_R20250608_00H.nc',
-        'mfwamglocep_2025060712_R20250608_12H.nc'
-    ]
+def fetch_and_extract_week(start_date, end_date, scenario_name):
+    print(f"\n--- TRAITEMENT DU SCÉNARIO : {scenario_name} ---")
+    output_filename = f"Hs_Aberdeen_{scenario_name}.nc"
     
-    # Centre du parc (Orkney)
-    #center_lat = 58.9303
-    #center_lon = -3.9335
-    
-    # Centre du parc (Aberdeen)
-    center_lat = 57.2139
-    center_lon = -1.9223
-    
-    # Conversion de km en degrés (Approximation locale pour ~59° Nord)
-    # 1° Latitude  = ~111 km.  Donc 15 km total (+/- 7.5 km) = +/- 0.067°
-    # 1° Longitude = ~111 * cos(58.9°) = ~57 km. Donc 20 km total (+/- 10 km) = +/- 0.175°
-    delta_lat = 0.067
-    delta_lon = 0.175
-    
-    # Définition des 5 points critiques du parc
-    test_points = {
-        "Center":      (center_lat, center_lon),
-        "North-West":  (center_lat + delta_lat, center_lon - delta_lon),
-        "North-East":  (center_lat + delta_lat, center_lon + delta_lon),
-        "South-West":  (center_lat - delta_lat, center_lon - delta_lon),
-        "South-East":  (center_lat - delta_lat, center_lon + delta_lon)
-    }
+    # 1. Téléchargement d'une Bounding Box englobant tout le parc (+ une marge)
+    if not os.path.exists(output_filename):
+        print(f"Téléchargement des données Copernicus pour {scenario_name}...")
+        copernicusmarine.subset(
+            dataset_id=dataset_id,
+            variables=["VHM0"],
+            minimum_longitude=center_lon - (delta_lon + 0.1),
+            maximum_longitude=center_lon + (delta_lon + 0.1),
+            minimum_latitude=center_lat - (delta_lat + 0.1),
+            maximum_latitude=center_lat + (delta_lat + 0.1),
+            start_datetime=start_date,
+            end_datetime=end_date,
+            output_filename=output_filename,
+            force_download=True
+        )
+        print("Téléchargement terminé !")
+    else:
+        print(f"Fichier {output_filename} déjà existant.")
+
+    # 2. Extraction des 5 points avec Xarray
+    print("Extraction des séries temporelles pour les 5 points critiques...")
+    ds = xr.open_dataset(output_filename)
     
     results = {}
-    print("Fetching spatial data across the 20x15 km area...")
-    
-    # Extraction pour chaque point
     for location, (lat, lon) in test_points.items():
-        print(f" -> Extracting {location:10} (Lat: {lat:.4f}, Lon: {lon:.4f})")
-        results[location] = get_hs_time_series(folder, files, lat, lon)
+        point = ds.sel(latitude=lat, longitude=lon, method="nearest")
+        results[location] = point['VHM0'].values.tolist()
         
-    # --- PLOTTING THE RESULTS ---
+    ds.close()
+    return results
+
+# =============================================================================
+# 3. FONCTION DE TRACÉ DU GRAPHIQUE
+# =============================================================================
+def plot_spatial_variation(results_dict, scenario_name):
     plt.figure(figsize=(12, 6), dpi=300)
     
-    # Tracer chaque ligne avec un style différent pour bien les distinguer
     markers = ['o', 's', '^', 'v', 'd']
-    for i, (location, hs_values) in enumerate(results.items()):
+    for i, (location, hs_values) in enumerate(results_dict.items()):
         plt.plot(hs_values, label=location, marker=markers[i], markersize=4, linewidth=1.5, alpha=0.8)
         
-    plt.title("Spatial Variation of Significant Wave Height (Hs) across Wind Farm", fontweight='bold')
-    plt.xlabel("Time Steps (Data points from NetCDF)", fontweight='bold')
-    plt.ylabel("Significant Wave Height (m)", fontweight='bold')
-    plt.axhline(y=1.3, color='r', linestyle='--', label="CTV Limit (1.3m)")
+    plt.title(f"Spatial Variation of Hs across Wind Farm - {scenario_name}", fontweight='bold')
+    plt.xlabel("Time Steps (3-hour intervals over 7 days)", fontweight='bold')
+    plt.ylabel("Significant Wave Height - Hs (m)", fontweight='bold')
+    
+    # Ajout des limites opérationnelles
+    plt.axhline(y=1.3, color='green', linestyle='--', linewidth=1.5, label="CTV Limit (1.3m)")
+    plt.axhline(y=3.5, color='red', linestyle='--', linewidth=1.5, label="SOV Limit (3.5m)")
+    
     plt.legend(loc='upper right')
     plt.grid(True, linestyle=':', alpha=0.7)
     plt.tight_layout()
     
-    # Calcul de la différence maximale
-    arr_values = np.array(list(results.values())) # Matrice (5 points x Time steps)
+    # Calcul de la différence spatiale maximale
+    arr_values = np.array(list(results_dict.values())) 
     max_diffs = np.max(arr_values, axis=0) - np.min(arr_values, axis=0)
     overall_max_diff = np.max(max_diffs)
     
     print("\n" + "="*50)
-    print(f"MAXIMUM SPATIAL DIFFERENCE AT ANY GIVEN TIME: {overall_max_diff:.3f} meters")
+    print(f"[{scenario_name}] MAXIMUM SPATIAL DIFFERENCE : {overall_max_diff:.3f} meters")
     print("="*50)
     
     plt.show()
+
+# =============================================================================
+# 4. EXÉCUTION PRINCIPALE
+# =============================================================================
+if __name__ == "__main__":
+    # Traitement du Best-Case Scenario
+    results_best = fetch_and_extract_week(best_case_start, best_case_end, "Best-Case")
+    plot_spatial_variation(results_best, "Best-Case")
+    
+    # Traitement du Worst-Case Scenario
+    results_worst = fetch_and_extract_week(worst_case_start, worst_case_end, "Worst-Case")
+    plot_spatial_variation(results_worst, "Worst-Case")
