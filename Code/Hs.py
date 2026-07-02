@@ -9,7 +9,7 @@ import numpy as np
 # =============================================================================
 # Remplace par les dates exactes issues de ton script précédent
 best_case_start = "2024-09-15T18:00:00"
-best_case_end   = "2024-10-22T18:00:00"
+best_case_end   = "2024-09-22T18:00:00"
 
 worst_case_start = "2024-01-01T00:00:00"
 worst_case_end   = "2024-01-08T00:00:00"

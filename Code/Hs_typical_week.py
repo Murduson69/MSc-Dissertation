@@ -76,6 +76,7 @@ def get_representative_weeks(data, window=56):
     summer_center = rolling_mean.idxmin()
     winter_center = rolling_mean.idxmax()
     
+    
     return summer_center, winter_center
 
 # Utilisation
