@@ -16,7 +16,6 @@ start_date = "2024-01-01T00:00:00"
 end_date = "2024-12-31T23:59:59"
 
 # ID du dataset Copernicus (Global Ocean Wave Analysis and Forecast)
-# Vérifie sur le catalogue si tu utilises un autre produit spécifique
 dataset_id = "cmems_mod_glo_wav_anfc_0.083deg_PT3H-i" 
 output_filename = "Hs_1Year_Aberdeen_2024.nc"
 
@@ -28,7 +27,6 @@ if not os.path.exists(output_filename):
     copernicusmarine.subset(
         dataset_id=dataset_id,
         variables=["VHM0"],
-        # On définit une très petite bounding box autour de ton point central
         minimum_longitude=center_lon - 0.05,
         maximum_longitude=center_lon + 0.05,
         minimum_latitude=center_lat - 0.05,
@@ -64,23 +62,25 @@ window_size = 56
 hs_series = pd.Series(hs_values)
 hs_rolling = hs_series.rolling(window=window_size, center=True).mean()
 
-# ---> LA CORRECTION EST ICI : Création du DataFrame "df" <---
-# On associe les hauteurs de vagues à leurs dates respectives
+# Création du DataFrame "df"
 df = pd.DataFrame({'Hs': hs_values}, index=time_values)
 
 def get_representative_weeks(data, window=56): 
     # Calcul de la moyenne glissante sur 7 jours
     rolling_mean = data['Hs'].rolling(window=window, center=True).mean()
     
-    # idxmin/idxmax trouvent le MILIEU de la semaine typique grâce au center=True
+    # 1. Extrêmes (idxmin/idxmax trouvent le MILIEU de la semaine)
     summer_center = rolling_mean.idxmin()
     winter_center = rolling_mean.idxmax()
     
+    # 2. Scénario Médian (Base-Case)
+    annual_median = rolling_mean.median()
+    mid_center = (rolling_mean - annual_median).abs().idxmin()
     
-    return summer_center, winter_center
+    return summer_center, mid_center, winter_center
 
 # Utilisation
-summer_center, winter_center = get_representative_weeks(df)
+summer_center, mid_center, winter_center = get_representative_weeks(df)
 
 # On recule de 3.5 jours et on avance de 3.5 jours pour encadrer la semaine
 half_week = pd.Timedelta(days=3.5)
@@ -88,10 +88,14 @@ half_week = pd.Timedelta(days=3.5)
 summer_start = summer_center - half_week
 summer_end = summer_center + half_week
 
+mid_start = mid_center - half_week
+mid_end = mid_center + half_week
+
 winter_start = winter_center - half_week
 winter_end = winter_center + half_week
 
 print(f"Best-Case Scenario: from {summer_start} to {summer_end}")
+print(f"Base-Case Scenario: from {mid_start} to {mid_end}")
 print(f"Worst-Case Scenario: from {winter_start} to {winter_end}")
 
 # =============================================================================
@@ -105,8 +109,9 @@ plt.plot(time_values, hs_values, color='lightgray', label='Raw Hs (3-hour steps)
 # Tracé de la tendance (moyenne glissante)
 plt.plot(time_values, hs_rolling, color='blue', label='7-Day Rolling Average', linewidth=2)
 
-#Ajout des zones ombrées
+# Ajout des zones ombrées (Vert, Orange, Rouge)
 plt.axvspan(summer_start, summer_end, color='green', alpha=0.3, label='Best-Case Scenario')
+plt.axvspan(mid_start, mid_end, color='orange', alpha=0.4, label='Base-Case Scenario')
 plt.axvspan(winter_start, winter_end, color='red', alpha=0.3, label='Worst-Case Scenario')
 
 # Lignes de contraintes opérationnelles
@@ -116,7 +121,9 @@ plt.axhline(y=3.5, color='red', linestyle='--', linewidth=1.5, label='SOV Limit 
 plt.title("Annual Evolution of Significant Wave Height (Hs) - Aberdeen Wind Farm", fontweight='bold')
 plt.xlabel("Date", fontweight='bold')
 plt.ylabel("Significant Wave Height - Hs (m)", fontweight='bold')
-plt.legend(loc='upper right')
+
+# Ajustement de la légende pour éviter qu'elle ne prenne trop de place
+plt.legend(loc='upper right', fontsize='small')
 plt.grid(True, linestyle=':', alpha=0.7)
 plt.tight_layout()
 
@@ -124,4 +131,3 @@ plt.show()
 
 # Fermeture propre du dataset
 ds.close()
-

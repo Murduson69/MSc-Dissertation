@@ -11,6 +11,10 @@ import numpy as np
 best_case_start = "2024-09-15T18:00:00"
 best_case_end   = "2024-09-22T18:00:00"
 
+# REMPLIS CES DATES AVEC LE RÉSULTAT "BASE-CASE" DE TON SCRIPT PRÉCÉDENT
+base_case_start = "2024-02-16T03:00:00"
+base_case_end   = "2024-02-23T03:00:00"
+
 worst_case_start = "2024-01-01T00:00:00"
 worst_case_end   = "2024-01-08T00:00:00"
 
@@ -111,6 +115,10 @@ if __name__ == "__main__":
     # Traitement du Best-Case Scenario
     results_best = fetch_and_extract_week(best_case_start, best_case_end, "Best-Case")
     plot_spatial_variation(results_best, "Best-Case")
+    
+    # Traitement du Base-Case Scenario
+    results_base = fetch_and_extract_week(base_case_start, base_case_end, "Base-Case")
+    plot_spatial_variation(results_base, "Base-Case")
     
     # Traitement du Worst-Case Scenario
     results_worst = fetch_and_extract_week(worst_case_start, worst_case_end, "Worst-Case")
