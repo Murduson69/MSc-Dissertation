@@ -12,12 +12,14 @@ from table_exporter import export_financial_table_image, export_downtime_table_i
 CURRENT_SCENARIO = "Predictive_Standard_AI"  # Tu pourras changer ça en "Perfect_AI" plus tard
 
 # --- 0. PRE-COMPUTATION: Fetch Weather Data ---
-print("Fetching Metocean data from Copernicus NetCDF files...")
+print(f"Fetching Metocean data for {p.ACTIVE_WEATHER_SCENARIO}...")
 hs_data = get_hs_time_series(
-    folder_path=p.WAVE_DATA_FOLDER,
-    file_names=p.WAVE_DATA_FILES,
+    dataset_id=p.COPERNICUS_DATASET_ID,
+    start_date=p.START_DATE,
+    end_date=p.END_DATE,
     target_lat=p.PARK_LAT,
-    target_lon=p.PARK_LON
+    target_lon=p.PARK_LON,
+    output_filename=p.OUTPUT_NC_FILE
 )
 print("Weather data successfully loaded!\n")
 

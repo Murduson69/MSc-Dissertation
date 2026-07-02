@@ -15,15 +15,16 @@ CURRENT_SCENARIO = "Standard_Preventive"
 # =================================================================
 # 0. PREPARATION & CLEAN STATE
 # =================================================================
-print("Fetching Metocean data from Copernicus NetCDF files...")
+print(f"Fetching Metocean data for {p.ACTIVE_WEATHER_SCENARIO}...")
 hs_data = get_hs_time_series(
-    folder_path=p.WAVE_DATA_FOLDER,
-    file_names=p.WAVE_DATA_FILES,
+    dataset_id=p.COPERNICUS_DATASET_ID,
+    start_date=p.START_DATE,
+    end_date=p.END_DATE,
     target_lat=p.PARK_LAT,
-    target_lon=p.PARK_LON
+    target_lon=p.PARK_LON,
+    output_filename=p.OUTPUT_NC_FILE
 )
 print("Weather data successfully loaded!\n")
-
 list_WT = copy.deepcopy(original_list_WT)
 for wt in list_WT:
     wt['repaired'] = False

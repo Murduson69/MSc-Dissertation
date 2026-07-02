@@ -5,13 +5,41 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # =============================================================================
-# 1. PARAMÈTRES DES SEMAINES TYPIQUES (À REMPLIR AVEC TES RÉSULTATS)
+# FONCTION REQUISE PAR LES SCRIPTS DE SIMULATION (simulation_*.py)
 # =============================================================================
-# Remplace par les dates exactes issues de ton script précédent
+def get_hs_time_series(dataset_id, start_date, end_date, target_lat, target_lon, output_filename):
+    """
+    Télécharge la météo via Copernicus si elle n'existe pas, et extrait la série temporelle du centre.
+    """
+    if not os.path.exists(output_filename):
+        print(f"Téléchargement Copernicus ({start_date} -> {end_date})...")
+        copernicusmarine.subset(
+            dataset_id=dataset_id,
+            variables=["VHM0"],
+            minimum_longitude=target_lon - 0.1,
+            maximum_longitude=target_lon + 0.1,
+            minimum_latitude=target_lat - 0.1,
+            maximum_latitude=target_lat + 0.1,
+            start_datetime=start_date,
+            end_datetime=end_date,
+            output_filename=output_filename,
+            force_download=True
+        )
+        print("Téléchargement terminé !")
+        
+    ds = xr.open_dataset(output_filename)
+    point = ds.sel(latitude=target_lat, longitude=target_lon, method="nearest")
+    hs_list = point['VHM0'].values.tolist()
+    ds.close()
+    
+    return hs_list
+
+# =============================================================================
+# 1. PARAMÈTRES DES SEMAINES TYPIQUES (POUR L'ANALYSE SPATIALE)
+# =============================================================================
 best_case_start = "2024-09-15T18:00:00"
 best_case_end   = "2024-09-22T18:00:00"
 
-# REMPLIS CES DATES AVEC LE RÉSULTAT "BASE-CASE" DE TON SCRIPT PRÉCÉDENT
 base_case_start = "2024-02-16T03:00:00"
 base_case_end   = "2024-02-23T03:00:00"
 
@@ -38,13 +66,12 @@ test_points = {
 dataset_id = "cmems_mod_glo_wav_anfc_0.083deg_PT3H-i"
 
 # =============================================================================
-# 2. FONCTION DE TÉLÉCHARGEMENT ET D'EXTRACTION SPATIALE
+# 2. FONCTION DE TÉLÉCHARGEMENT ET D'EXTRACTION SPATIALE (POUR LES GRAPHIQUES)
 # =============================================================================
 def fetch_and_extract_week(start_date, end_date, scenario_name):
     print(f"\n--- TRAITEMENT DU SCÉNARIO : {scenario_name} ---")
     output_filename = f"Hs_Aberdeen_{scenario_name}.nc"
     
-    # 1. Téléchargement d'une Bounding Box englobant tout le parc (+ une marge)
     if not os.path.exists(output_filename):
         print(f"Téléchargement des données Copernicus pour {scenario_name}...")
         copernicusmarine.subset(
@@ -63,7 +90,6 @@ def fetch_and_extract_week(start_date, end_date, scenario_name):
     else:
         print(f"Fichier {output_filename} déjà existant.")
 
-    # 2. Extraction des 5 points avec Xarray
     print("Extraction des séries temporelles pour les 5 points critiques...")
     ds = xr.open_dataset(output_filename)
     
@@ -89,7 +115,6 @@ def plot_spatial_variation(results_dict, scenario_name):
     plt.xlabel("Time Steps (3-hour intervals over 7 days)", fontweight='bold')
     plt.ylabel("Significant Wave Height - Hs (m)", fontweight='bold')
     
-    # Ajout des limites opérationnelles
     plt.axhline(y=1.3, color='green', linestyle='--', linewidth=1.5, label="CTV Limit (1.3m)")
     plt.axhline(y=3.5, color='red', linestyle='--', linewidth=1.5, label="SOV Limit (3.5m)")
     
@@ -97,7 +122,6 @@ def plot_spatial_variation(results_dict, scenario_name):
     plt.grid(True, linestyle=':', alpha=0.7)
     plt.tight_layout()
     
-    # Calcul de la différence spatiale maximale
     arr_values = np.array(list(results_dict.values())) 
     max_diffs = np.max(arr_values, axis=0) - np.min(arr_values, axis=0)
     overall_max_diff = np.max(max_diffs)
@@ -109,17 +133,14 @@ def plot_spatial_variation(results_dict, scenario_name):
     plt.show()
 
 # =============================================================================
-# 4. EXÉCUTION PRINCIPALE
+# 4. EXÉCUTION PRINCIPALE (Se lance uniquement si tu exécutes Hs.py directement)
 # =============================================================================
 if __name__ == "__main__":
-    # Traitement du Best-Case Scenario
     results_best = fetch_and_extract_week(best_case_start, best_case_end, "Best-Case")
     plot_spatial_variation(results_best, "Best-Case")
     
-    # Traitement du Base-Case Scenario
     results_base = fetch_and_extract_week(base_case_start, base_case_end, "Base-Case")
     plot_spatial_variation(results_base, "Base-Case")
     
-    # Traitement du Worst-Case Scenario
     results_worst = fetch_and_extract_week(worst_case_start, worst_case_end, "Worst-Case")
     plot_spatial_variation(results_worst, "Worst-Case")
