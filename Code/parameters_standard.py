@@ -61,6 +61,7 @@ MAX_WT_PER_DAY = 6 # Maximum number of WTs to attempt per day
 # =============================================================================
 CPST = 500         # Fixed implementation cost for predictive maintenance (in EUR)
 # Standardized Membership Scores (Cost-Effectiveness article Table 6)
+AI_PROFILE_NAME = "Standard"
 MSTP = 0.88        # True Positive score
 MSFN = 0.07        # False Negative score
 
@@ -84,7 +85,7 @@ if USE_SOV:
     Vs = 6.2                         # Average speed (in m/s, approx 12 knots)
     FCV = 35000                      # Fixed vessel cost per day (in EUR)
     COL = 4500                       # Cost of service team per day (in EUR)
-    COF = 112                        # Cost of vessel fuel per hour (in EUR/hour)
+    COF = 3000                        # Cost of vessel fuel per day (in EUR/day)
 else:
     # CTV Profile (Crew Transfer Vessel from Frederiksen's paper)
     CURRENT_VESSEL_LIMIT = 1.3       # Wave limit (in meters)

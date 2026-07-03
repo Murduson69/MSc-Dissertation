@@ -10,7 +10,7 @@ from visualization import plot_daily_route
 from table_exporter import export_financial_table_image, export_downtime_table_image, export_simulation_parameters
 
 
-CURRENT_SCENARIO = "Standard_Preventive"
+CURRENT_SCENARIO = f"{p.ACTIVE_WEATHER_SCENARIO}_No_AI"
 
 # =================================================================
 # 0. PREPARATION & CLEAN STATE

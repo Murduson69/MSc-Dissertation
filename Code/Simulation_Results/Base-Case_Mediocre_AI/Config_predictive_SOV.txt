@@ -1,0 +1,47 @@
+===============================================================================
+SIMULATION CONFIGURATION LOG - 2026-07-02 17:18:03
+===============================================================================
+
+MAINTENANCE STRATEGY : PREDICTIVE
+VESSEL PROFILE       : SOV
+SCENARIO NAME        : Base-Case_Mediocre_AI
+
+-------------------------------------------------------------------------------
+1. METOCEAN & LOCATION DATA
+-------------------------------------------------------------------------------
+Park Latitude               : 57.2139
+Park Longitude              : -1.9223
+Active Wave Limit (Hs)      : 3.5 meters
+
+-------------------------------------------------------------------------------
+2. WIND FARM & FINANCIAL BASELINES
+-------------------------------------------------------------------------------
+Turbine Nominal Power (MW)  : 3.6 MW
+Energy Market Price         : 168 EUR/MWh
+Wind Efficiency Factor      : 0.9
+Availability Discount Rate  : 0.96
+
+-------------------------------------------------------------------------------
+3. MAINTENANCE TASK BASELINES
+-------------------------------------------------------------------------------
+Working Day Length (H)      : 12 hours
+Service Time per WT (TS)    : 120 minutes
+Mobilization Time (TI)      : 15 minutes
+Average Downtime Length     : 3.5 hours
+Max WTs Attempted / Day     : 6
+
+-------------------------------------------------------------------------------
+4. AI MODEL PARAMETERS (Only relevant for Predictive)
+-------------------------------------------------------------------------------
+Implementation Cost (CPST)  : 500 EUR
+True Positive Score (MSTP)  : 0.6
+False Negative Score (MSFN) : 0.3
+
+-------------------------------------------------------------------------------
+5. ACTIVE VESSEL CHARTER RATES
+-------------------------------------------------------------------------------
+Vessel Transit Speed (Vs)   : 6.2 m/s
+Fixed Vessel Cost / Day(FCV): 35000 EUR/day
+Service Team Cost / Day(COL): 4500 EUR/day
+Hourly Fuel Cost (COF)      : 3000 EUR/hour
+===============================================================================

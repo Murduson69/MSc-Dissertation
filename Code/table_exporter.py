@@ -75,9 +75,13 @@ def _draw_and_save_table(df, title, vessel_type, strategy_name, scenario_name, t
 
     plt.title(f"{title}: {vessel_type} | Scenario: {scenario_name}", fontweight='bold', pad=20)
 
-    output_dir = 'Figures_Tables'
+    # --- ARBORESCENCE DYNAMIQUE ---
+    # Crée le dossier: Simulation_Results / Nom_Du_Scenario / Tables
+    output_dir = os.path.join('Simulation_Results', scenario_name, 'Tables')
     os.makedirs(output_dir, exist_ok=True)
-    file_name = f'Table_{table_type}_{strategy_name}_{vessel_type}_{scenario_name}.png'
+    
+    # On nomme le fichier proprement (ex: Financial_Summary_predictive_SOV.png)
+    file_name = f'{table_type}_Summary_{strategy_name}_{vessel_type}.png'
     output_path = os.path.join(output_dir, file_name)
     plt.savefig(output_path, bbox_inches='tight')
     plt.close()
@@ -89,13 +93,13 @@ def export_simulation_parameters(strategy_name, scenario_name, vessel_type):
     """
     import parameters as p  # Import local pour lire les variables à l'instant T
     
-    # 1. Création automatique du dossier d'historique s'il n'existe pas
-    output_dir = 'Simulation_Logs'
+    # --- ARBORESCENCE DYNAMIQUE ---
+    # Crée le dossier racine du scénario: Simulation_Results / Nom_Du_Scenario
+    output_dir = os.path.join('Simulation_Results', scenario_name)
     os.makedirs(output_dir, exist_ok=True)
     
-    # 2. Définition du nom du fichier conforme à tes exigences strictes
-    # Exemple : Config_predictive_CTV_Standard_AI.txt
-    file_name = f'Config_{strategy_name}_{vessel_type}_{scenario_name}.txt'
+    # On place le log texte directement dans le dossier du scénario
+    file_name = f'Config_{strategy_name}_{vessel_type}.txt'
     output_path = os.path.join(output_dir, file_name)
     
     # 3. Écriture structurée de toutes les variables

@@ -9,7 +9,7 @@ from financial_evaluation import evaluate_financials, print_mission_status
 from visualization import plot_daily_route
 from table_exporter import export_financial_table_image, export_downtime_table_image, export_simulation_parameters
 
-CURRENT_SCENARIO = "Predictive_Standard_AI"  # Tu pourras changer ça en "Perfect_AI" plus tard
+CURRENT_SCENARIO = f"{p.ACTIVE_WEATHER_SCENARIO}_{p.AI_PROFILE_NAME}_AI"
 
 # --- 0. PRE-COMPUTATION: Fetch Weather Data ---
 print(f"Fetching Metocean data for {p.ACTIVE_WEATHER_SCENARIO}...")

@@ -78,18 +78,12 @@ def plot_daily_route(day_index, base_coords, all_wts, route_wts, use_sov=False, 
     ax.legend(loc='lower right', frameon=True, facecolor='white', edgecolor='#e5e7eb')
     plt.tight_layout()
 
-    # --- NOUVEAU SYSTÈME DE RANGEMENT AUTOMATIQUE ---
-    # 1. On définit le nom du dossier poubelle/résultats
-    output_dir = 'Figures_Routes'
-    
-    # 2. Python crée le dossier s'il n'existe pas encore (exist_ok=True évite les erreurs)
+    # --- ARBORESCENCE DYNAMIQUE ---
+    # Crée un dossier: Simulation_Results / Nom_Du_Scenario / Routes
+    output_dir = os.path.join('Simulation_Results', scenario_name, 'Routes')
     os.makedirs(output_dir, exist_ok=True)
     
-    # 3. On nomme le fichier en incluant le type de bateau pour ne rien écraser
-    file_name = f'Route_{vessel_name}_{scenario_name}_Day_{day_num}.png'
-    
-    # 4. On assemble le chemin complet (ex: Figures_Routes/Route_CTV_Day_1.png)
-    output_path = os.path.join(output_dir, file_name)
-    
-    plt.savefig(output_path, bbox_inches='tight')
-    plt.close()
+    # Le nom du fichier devient juste "Day_1.png", "Day_2.png", car il est déjà dans le bon dossier !
+    file_path = os.path.join(output_dir, f'Route_Day_{day_num}.png')
+    plt.savefig(file_path)
+    plt.close() # N'oublie pas de fermer la figure pour ne pas surcharger la RAM

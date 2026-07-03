@@ -38,16 +38,21 @@ def evaluate_financials(daily_expected, daily_prevented, daily_shift_times, epsi
         downtimes = max(0, daily_expected[i] - daily_prevented[i])
         cod = downtimes * p.h_downtime * rev_per_hour_per_wt
         
-        # B. Logique d'activation des coûts selon le statut de la mission
+        # B. Logique de consommation carburant selon le type de navire
         if i <= mission_end_day:
             daily_vt_cost = base_vessel_team_cost
-            # CALCUL DYNAMIQUE DU FUEL : Temps de mer effectif * Coût horaire
-            fuel = daily_shift_times[i] * p.COF
+            
+            if p.USE_SOV:
+                # SOV : Consommation continue sur 24h (Hotel load & Dynamic Positioning)
+                fuel = p.COF 
+            else:
+                # CTV : Consommation dynamique basée uniquement sur le shift actif
+                fuel = daily_shift_times[i] * p.COF
         else:
-            # Mission terminée, le navire est rentré au port, coûts stoppés
+            # Mission terminée, le navire est rentré (Early Demobilization)
             daily_vt_cost = 0.0
             fuel = 0.0
-        
+            
         rows.append({
             "day": f"Day {i+1}",
             "rev": rev_per_day,
