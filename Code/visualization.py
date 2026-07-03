@@ -67,6 +67,8 @@ def plot_daily_route(day_index, base_coords, all_wts, route_wts, use_sov=False, 
     day_num = day_index + 1
     ax.set_xlabel('X [km]', fontweight='bold')
     ax.set_ylabel('Y [km]', fontweight='bold')
+    
+    # La variable vessel_name détermine si c'est CTV ou SOV
     vessel_name = "SOV" if use_sov else "CTV"
     ax.set_title(f'Vessel Itinerary ({vessel_name}) - Day {day_num}', pad=15, fontweight='bold')
 
@@ -79,11 +81,10 @@ def plot_daily_route(day_index, base_coords, all_wts, route_wts, use_sov=False, 
     plt.tight_layout()
 
     # --- ARBORESCENCE DYNAMIQUE ---
-    # Crée un dossier: Simulation_Results / Nom_Du_Scenario / Routes
     output_dir = os.path.join('Simulation_Results', scenario_name, 'Routes')
     os.makedirs(output_dir, exist_ok=True)
     
-    # Le nom du fichier devient juste "Day_1.png", "Day_2.png", car il est déjà dans le bon dossier !
-    file_path = os.path.join(output_dir, f'Route_Day_{day_num}.png')
+    # CORRECTION : On ajoute vessel_name dans le nom du fichier PNG !
+    file_path = os.path.join(output_dir, f'Route_{vessel_name}_Day_{day_num}.png')
     plt.savefig(file_path)
-    plt.close() # N'oublie pas de fermer la figure pour ne pas surcharger la RAM
+    plt.close()
