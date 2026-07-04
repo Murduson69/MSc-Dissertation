@@ -2,9 +2,11 @@ import os
 import shutil
 import re
 
-scenarios = ["Best-Case", "Base-Case", "Worst-Case"]
+#scenarios = ["Best-Case", "Base-Case", "Worst-Case"]
+scenarios = ["Base-Case"]
 vessels = [True, False] # True: SOV, False: CTV
 ai_profiles = ["perfect", "standard", "mediocre"]
+#ai_profiles = ["standard"]
 
 def update_parameters(scenario, sov_bool):
     """Modifie le fichier parameters.py en cours d'utilisation."""

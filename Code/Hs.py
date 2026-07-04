@@ -40,8 +40,17 @@ def get_hs_time_series(dataset_id, start_date, end_date, target_lat, target_lon,
 best_case_start = "2024-09-15T18:00:00"
 best_case_end   = "2024-09-22T18:00:00"
 
-base_case_start = "2024-02-16T03:00:00"
-base_case_end   = "2024-02-23T03:00:00"
+#base_case_start = "2024-02-16T03:00:00"  #mediane
+#base_case_end   = "2024-02-23T03:00:00"  #mediane
+
+base_case_start = "2024-03-20T00:00:00"
+base_case_end   = "2024-03-27T00:00:00"
+
+#base_case_start = "2024-04-27T00:00:00"
+#base_case_end   = "2024-05-02T00:00:00"
+
+#base_case_start = "2024-12-15T00:00:00"
+#base_case_end   = "2024-12-22T00:00:00"
 
 worst_case_start = "2024-01-01T00:00:00"
 worst_case_end   = "2024-01-08T00:00:00"

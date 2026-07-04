@@ -88,8 +88,11 @@ half_week = pd.Timedelta(days=3.5)
 summer_start = summer_center - half_week
 summer_end = summer_center + half_week
 
-mid_start = mid_center - half_week
-mid_end = mid_center + half_week
+#mid_start = mid_center - half_week
+#mid_end = mid_center + half_week
+
+mid_start = "2024-03-20T00:00:00"
+mid_end = "2024-03-27T00:00:00"
 
 winter_start = winter_center - half_week
 winter_end = winter_center + half_week
